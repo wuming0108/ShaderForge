@@ -13,8 +13,11 @@ namespace ShaderForge {
 		[SerializeField]
 		public SF_PreviewSettings settings;
 
-		// Preview assets
-		[SerializeField]
+#if UNITY_2018_2_OR_NEWER
+        public int specialLayer = 31;
+#endif
+        // Preview assets
+        [SerializeField]
 		public Mesh mesh;  
 		[SerializeField]
 		public Material internalMaterial;
@@ -108,7 +111,13 @@ namespace ShaderForge {
 				return null;
 			}
 			foreach( UnityEngine.Object o in objs ) {
-				if( o.name == find_name && o.GetType() == typeof(Mesh)) {
+#if UNITY_2018_2_OR_NEWER
+                if (o is GameObject)
+                {
+                    (o as GameObject).layer = specialLayer;
+                }
+#endif
+                if ( o.name == find_name && o.GetType() == typeof(Mesh)) {
 					return o as Mesh;
 				}
 			}
@@ -132,15 +141,17 @@ namespace ShaderForge {
 			cam.useOcclusionCulling = false;
 			cam.cameraType = CameraType.Preview;
 			cam.fieldOfView = targetFOV;
-
+#if UNITY_2018_2_OR_NEWER
+            cam.cullingMask = 1 << specialLayer;
+#else
 			// Make sure it only renders using DrawMesh, to make ignore the scene. This is a bit risky, due to using reflection :(
 			BindingFlags bfs = BindingFlags.Static | BindingFlags.NonPublic;
 			Type[] args = new Type[]{ typeof(Camera) };
 			mSetCameraOnlyDrawMesh = typeof( Handles ).GetMethod( "SetCameraOnlyDrawMesh", bfs, null, args, null );
 			mSetCameraOnlyDrawMesh.Invoke( null, new object[]{ cam } );
-
-			// Create pivot/transform to hold it
-			camPivot = new GameObject("Shader Forge Camera Pivot").transform;
+#endif
+            // Create pivot/transform to hold it
+            camPivot = new GameObject("Shader Forge Camera Pivot").transform;
 			camPivot.gameObject.hideFlags = HideFlags.HideAndDontSave;
 			cam.clearFlags = CameraClearFlags.Skybox;
 			cam.transform.parent = camPivot;
