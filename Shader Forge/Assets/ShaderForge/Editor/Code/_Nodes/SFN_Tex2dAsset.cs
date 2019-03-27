@@ -53,8 +53,10 @@ namespace ShaderForge {
 				AssetImporter importer = UnityEditor.AssetImporter.GetAtPath( path );
 				if(importer is TextureImporter)
 					return ((TextureImporter)importer).textureType == TextureImporterType.NormalMap;
-				else if(textureAsset is ProceduralTexture && textureAsset.name.EndsWith("_Normal"))
+#if !UNITY_2018_2_OR_NEWER
+                else if(textureAsset is ProceduralTexture && textureAsset.name.EndsWith("_Normal"))
 					return true; // When it's a ProceduralTexture having _Normal as a suffix
+#endif
 				else
 					return false; // When it's a RenderTexture or ProceduralTexture
 			}
@@ -148,8 +150,14 @@ namespace ShaderForge {
 
 			if( IsProperty() && Event.current.type == EventType.DragPerform && rectInner.Contains(Event.current.mousePosition) ) {
 				Object droppedObj = DragAndDrop.objectReferences[0];
+#if !UNITY_2018_2_OR_NEWER
 				if( droppedObj is Texture2D || droppedObj is ProceduralTexture || droppedObj is RenderTexture) {
-					Event.current.Use();
+#else
+                if (droppedObj is Texture2D || droppedObj is RenderTexture)
+#endif
+                {
+
+                    Event.current.Use();
 					textureAsset = droppedObj as Texture;
 					OnAssignedTexture();
 				}
@@ -158,7 +166,12 @@ namespace ShaderForge {
 			if( IsProperty() && Event.current.type == EventType.dragUpdated ) {
 				if(DragAndDrop.objectReferences.Length > 0){
 					Object dragObj = DragAndDrop.objectReferences[0];
-					if( dragObj is Texture2D || dragObj is ProceduralTexture || dragObj is RenderTexture) {
+#if !UNITY_2018_2_OR_NEWER
+				if ( dragObj is Texture2D || dragObj is ProceduralTexture || dragObj is RenderTexture)
+#else
+                    if (dragObj is Texture2D || dragObj is RenderTexture)
+#endif
+                    { 
 						DragAndDrop.visualMode = DragAndDropVisualMode.Link;
 						editor.nodeBrowser.CancelDrag();
 						Event.current.Use();
@@ -291,8 +304,10 @@ namespace ShaderForge {
 				AssetImporter importer = UnityEditor.AssetImporter.GetAtPath( path );
 				if(importer is TextureImporter)
 					newAssetIsNormalMap = ((TextureImporter)importer ).textureType == TextureImporterType.NormalMap;
+#if !UNITY_2018_2_OR_NEWER
 				else if(textureAsset is ProceduralTexture && textureAsset.name.EndsWith("_Normal"))
 					newAssetIsNormalMap = true; // When it's a ProceduralTexture having _Normal as a suffix
+#endif
 				else
 					newAssetIsNormalMap = false; // When it's a RenderTexture or ProceduralTexture
 			}
