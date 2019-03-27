@@ -4,3 +4,7 @@ Shader Forge/Shader Forge.sln
 Shader Forge/.vs/
 Shader Forge/Library/
 Shader Forge/Temp/
+Shader Forge/Logs/
+Shader Forge/obj/
+Shader Forge/Assembly-CSharp.csproj
+Shader Forge/Assembly-CSharp-Editor.csproj
